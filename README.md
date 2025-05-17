@@ -50,7 +50,7 @@ This tool is intended for HR departments, team leads, or data analysts who requi
 
 ## Technologies Used
 
-- **Python 3**
+- **Python**
 - **FPDF** (for PDF creation)
 - **CSV** module (for reading input data)
 - **Datetime** (for date and tenure calculations)
