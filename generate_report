@@ -2,22 +2,22 @@ from fpdf import FPDF
 from datetime import datetime, date
 import csv
 
+# Define a custom PDF class using FPDF
 class EmployeeAnalyticsReport(FPDF):
     def __init__(self):
         super().__init__()
         self.set_auto_page_break(auto=True, margin=15)
         self.set_title("Employee Analytics Report")
         self.set_author("Reporting System")
-    
-    def header(self):
-        pass  # No header text
 
+    # Footer for each page (displays page number and generation time)
     def footer(self):
         self.set_y(-15)
         self.set_font("Arial", "I", 8)
         self.set_text_color(128, 128, 128)
         self.cell(0, 10, f"Page {self.page_no()} | Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M')}", 0, 0, "C")
 
+    # Add section title with styling
     def add_section(self, title):
         self.ln(10)
         self.set_font("Arial", "B", 14)
@@ -27,6 +27,7 @@ class EmployeeAnalyticsReport(FPDF):
         self.cell(0, 1, "", "T")
         self.ln(5)
 
+    # Display metrics in a horizontal block
     def add_metrics(self, metrics):
         self.set_font("Arial", "", 11)
         col_width = 190 / len(metrics)
@@ -37,6 +38,7 @@ class EmployeeAnalyticsReport(FPDF):
             self.cell(col_width, 8, str(value), border=1, align="L", ln=False, fill=True)
         self.ln()
 
+    # Create a table with headers and data rows
     def add_table(self, headers, rows, col_widths):
         self.set_font("Arial", "B", 11)
         self.set_fill_color(220, 230, 255)
@@ -50,6 +52,7 @@ class EmployeeAnalyticsReport(FPDF):
             self.ln()
         self.ln(5)
 
+# Calculate years of service (tenure) from join date
 def calculate_tenure(join_date):
     try:
         date_joined = datetime.strptime(join_date, "%Y-%m-%d").date()
@@ -57,8 +60,10 @@ def calculate_tenure(join_date):
     except:
         return 0
 
+# Analyze the employee data and return summary and departmental metrics
 def analyze_employees(data):
     departments = {}
+
     for emp in data:
         emp['Salary'] = float(emp.get('Salary', 0))
         emp['PerformanceRating'] = float(emp.get('PerformanceRating', 0))
@@ -67,6 +72,7 @@ def analyze_employees(data):
         dept = emp['Department']
         if dept not in departments:
             departments[dept] = {'count': 0, 'salaries': [], 'ratings': [], 'tenures': [], 'employees': []}
+
         d = departments[dept]
         d['count'] += 1
         d['salaries'].append(emp['Salary'])
@@ -74,6 +80,7 @@ def analyze_employees(data):
         d['tenures'].append(emp['Tenure'])
         d['employees'].append(emp)
 
+    # Calculate department averages
     for d in departments.values():
         d['avg_salary'] = sum(d['salaries']) / d['count']
         d['avg_rating'] = sum(d['ratings']) / d['count']
@@ -102,8 +109,10 @@ def analyze_employees(data):
         }
     }
 
+# Main function to generate the report
 def generate_report(input_csv="data.csv", output_pdf="employee_analytics_report.pdf"):
     try:
+        # Read CSV data
         with open(input_csv, newline='') as file:
             reader = csv.DictReader(file)
             employees = [row for row in reader if row.get('Name')]
@@ -112,11 +121,12 @@ def generate_report(input_csv="data.csv", output_pdf="employee_analytics_report.
             print("No data found.")
             return False
 
+        # Analyze the data
         analysis = analyze_employees(employees)
         pdf = EmployeeAnalyticsReport()
         pdf.add_page()
 
-        # Title and overview
+        # Report title
         pdf.set_font("Arial", "B", 20)
         pdf.set_text_color(0, 51, 102)
         pdf.cell(0, 15, "Employee Analytics Report", ln=True, align="C")
@@ -170,6 +180,7 @@ def generate_report(input_csv="data.csv", output_pdf="employee_analytics_report.
         ]
         pdf.add_table(["Name", "Department", "Salary", "Join Date"], sample_rows, [50, 40, 40, 60])
 
+        # Output the PDF
         pdf.output(output_pdf)
         print(f"Report generated: {output_pdf}")
         return True
@@ -181,5 +192,6 @@ def generate_report(input_csv="data.csv", output_pdf="employee_analytics_report.
         print(f"Error: {e}")
         return False
 
+# Entry point for the script
 if __name__ == "__main__":
     generate_report()
