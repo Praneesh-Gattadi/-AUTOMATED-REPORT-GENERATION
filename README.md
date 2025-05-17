@@ -140,3 +140,7 @@ The PDF is broken down into the following segments:
 ## License
 
 This project is intended for educational and internship evaluation purposes. You are free to adapt or extend it for learning or internal use.
+
+## Output
+
+[employee_analytics_report.pdf](https://github.com/user-attachments/files/20265294/employee_analytics_report.pdf)
